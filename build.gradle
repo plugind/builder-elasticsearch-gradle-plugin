@@ -18,7 +18,6 @@
  */
 
 import java.nio.file.Files
-
 import org.gradle.util.GradleVersion
 
 apply plugin: 'groovy'
@@ -26,7 +25,8 @@ apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'maven'
 
-group = 'org.elasticsearch.gradle'
+group = 'io.plugind.builders'
+version = '0.1.0'
 
 if (GradleVersion.current() < GradleVersion.version('3.3')) {
   throw new GradleException('Gradle 3.3+ is required to build elasticsearch')
@@ -36,17 +36,11 @@ if (JavaVersion.current() < JavaVersion.VERSION_1_8) {
   throw new GradleException('Java 1.8 is required to build elasticsearch gradle tools')
 }
 
-if (project == rootProject) {
-  // change the build dir used during build init, so that doing a clean
-  // won't wipe out the buildscript jar
-  // buildDir = 'build-bootstrap'
-}
-
 /*****************************************************************************
  *         Propagating version.properties to the rest of the build           *
  *****************************************************************************/
 
-version = '0.1.0'
+
 Properties props = new Properties()
 props.load(project.file('version.properties').newDataInputStream())
 
@@ -106,20 +100,7 @@ dependencies {
   compile 'ru.vyarus:gradle-animalsniffer-plugin:1.2.0' // Gradle 2.14 requires a version > 1.0.1
 }
 
-/*****************************************************************************
- *                         Bootstrap repositories                            *
- *****************************************************************************/
-// this will only happen when buildSrc is built on its own during build init
-if (project == rootProject) {
-
-  repositories {
-    if (System.getProperty("repos.mavenLocal") != null) {
-      mavenLocal()
-    }
-    mavenCentral()
-  }
-  test.exclude 'org/elasticsearch/test/NamingConventionsCheckBadClasses*'
-}
+test.exclude 'org/elasticsearch/test/NamingConventionsCheckBadClasses*'
 
 /*****************************************************************************
  *                           Normal project checks                           *
