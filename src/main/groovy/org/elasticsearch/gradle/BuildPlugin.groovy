@@ -58,6 +58,7 @@ class BuildPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        VersionProperties.updateVersionsFromCallingProject(project)
         if (project.pluginManager.hasPlugin('elasticsearch.standalone-rest-test')) {
               throw new InvalidUserDataException('elasticsearch.standalone-test, '
                 + 'elasticearch.standalone-rest-test, and elasticsearch.build '
