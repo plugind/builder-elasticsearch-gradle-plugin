@@ -20,13 +20,19 @@
 import java.nio.file.Files
 import org.gradle.util.GradleVersion
 
+plugins {
+    id "com.jfrog.bintray" version "1.7.3"
+}
+apply plugin: 'com.jfrog.bintray'
+
 apply plugin: 'groovy'
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'maven'
 
-group = 'io.plugind.builders'
+group = 'io.plugind.builders.elasticsearch'
 version = '0.1.0'
+description = """Gradle plugin to help with building and publishing Elasticsearch plugins"""
 
 if (GradleVersion.current() < GradleVersion.version('3.3')) {
   throw new GradleException('Gradle 3.3+ is required to build elasticsearch')
@@ -147,6 +153,25 @@ if (project != rootProject) {
     integTestClass = namingConventions.integTestClass
   }
   precommit.dependsOn namingConventionsMain
+}
+
+bintray {
+    user = 'synhershko'
+    key = System.getenv('BINTRAY_KEY')
+    publications = ['mavenJava']
+
+    pkg {
+        repo = "io.plugind.builders.elasticsearch"
+        name = "gradle-plugin"
+        websiteUrl = "http://plugind.io"
+        vcsUrl = "https://github.com/plugind/builder-elasticsearch-gradle-plugin.git"
+        licenses = ['Apache-2.0']
+        publish = true
+        version {
+            name = project.version
+            released = new Date()
+        }
+    }
 }
 
 publishing {
