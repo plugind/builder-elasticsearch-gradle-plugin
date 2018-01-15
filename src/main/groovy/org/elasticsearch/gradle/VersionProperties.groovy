@@ -18,12 +18,14 @@
  */
 package org.elasticsearch.gradle
 
+import org.gradle.api.Project
+
 /**
  * Accessor for shared dependency versions used by elasticsearch, namely the elasticsearch and lucene versions.
  */
 class VersionProperties {
-    static final String elasticsearch
-    static final String lucene
+    static String elasticsearch
+    static String lucene
     static final Map<String, String> versions = new HashMap<>()
     static {
         Properties props = new Properties()
@@ -32,6 +34,16 @@ class VersionProperties {
             throw new RuntimeException('/version.properties resource missing')
         }
         props.load(propsStream)
+        elasticsearch = props.getProperty('elasticsearch')
+        lucene = props.getProperty('lucene')
+        for (String property : props.stringPropertyNames()) {
+            versions.put(property, props.getProperty(property))
+        }
+    }
+
+    public static void updateVersionsFromCallingProject(Project project) {
+        Properties props = new Properties()
+        props.load(new FileReader(project.rootProject.file('gradle.properties'))) // TODO better filename convention
         elasticsearch = props.getProperty('elasticsearch')
         lucene = props.getProperty('lucene')
         for (String property : props.stringPropertyNames()) {

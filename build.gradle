@@ -18,12 +18,16 @@
  */
 
 import java.nio.file.Files
-
 import org.gradle.util.GradleVersion
 
 apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'maven'
 
-group = 'org.elasticsearch.gradle'
+group = 'io.plugind.builders.elasticsearch'
+version = '0.2.0'
+description = """Gradle plugin to help with building and publishing Elasticsearch plugins"""
 
 if (GradleVersion.current() < GradleVersion.version('3.3')) {
   throw new GradleException('Gradle 3.3+ is required to build elasticsearch')
@@ -33,27 +37,14 @@ if (JavaVersion.current() < JavaVersion.VERSION_1_8) {
   throw new GradleException('Java 1.8 is required to build elasticsearch gradle tools')
 }
 
-if (project == rootProject) {
-  // change the build dir used during build init, so that doing a clean
-  // won't wipe out the buildscript jar
-  buildDir = 'build-bootstrap'
-}
-
 /*****************************************************************************
  *         Propagating version.properties to the rest of the build           *
  *****************************************************************************/
 
+
 Properties props = new Properties()
 props.load(project.file('version.properties').newDataInputStream())
-version = props.getProperty('elasticsearch')
-boolean snapshot = "true".equals(System.getProperty("build.snapshot", "true"));
-if (snapshot) {
-  // we update the version property to reflect if we are building a snapshot or a release build
-  // we write this back out below to load it in the Build.java which will be shown in rest main action
-  // to indicate this being a snapshot build or a release build.
-  version += "-SNAPSHOT"
-  props.put("elasticsearch", version);
-}
+
 
 File tempPropertiesFile = new File(project.buildDir, "version.properties")
 task writeVersionProperties {
@@ -109,20 +100,7 @@ dependencies {
   compile 'ru.vyarus:gradle-animalsniffer-plugin:1.2.0' // Gradle 2.14 requires a version > 1.0.1
 }
 
-/*****************************************************************************
- *                         Bootstrap repositories                            *
- *****************************************************************************/
-// this will only happen when buildSrc is built on its own during build init
-if (project == rootProject) {
-
-  repositories {
-    if (System.getProperty("repos.mavenLocal") != null) {
-      mavenLocal()
-    }
-    mavenCentral()
-  }
-  test.exclude 'org/elasticsearch/test/NamingConventionsCheckBadClasses*'
-}
+test.exclude 'org/elasticsearch/test/NamingConventionsCheckBadClasses*'
 
 /*****************************************************************************
  *                           Normal project checks                           *
@@ -169,4 +147,15 @@ if (project != rootProject) {
     integTestClass = namingConventions.integTestClass
   }
   precommit.dependsOn namingConventionsMain
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }
