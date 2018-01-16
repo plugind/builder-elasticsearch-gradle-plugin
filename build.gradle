@@ -31,7 +31,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'maven'
 
 group = 'io.plugind.builders.elasticsearch'
-version = '0.2.0'
+version = '0.3.0'
 description = """Gradle plugin to help with building and publishing Elasticsearch plugins"""
 
 if (GradleVersion.current() < GradleVersion.version('3.3')) {
@@ -154,6 +154,22 @@ if (project != rootProject) {
   precommit.dependsOn namingConventionsMain
 }
 
+// custom tasks for creating source/javadoc jars
+task sourcesJar(type: Jar, dependsOn: classes) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  classifier = 'javadoc'
+  from javadoc.destinationDir
+}
+
+artifacts {
+  archives javadocJar
+  archives sourcesJar
+}
+
 bintray {
   user = 'synhershko'
   key = System.getenv('BINTRAY_KEY')
@@ -161,7 +177,7 @@ bintray {
 
   pkg {
     repo = "io.plugind.builders.elasticsearch"
-    name = "gradle-plugin"
+    name = "io.plugind.builders.elasticsearch.gradle-plugin"
     websiteUrl = "http://plugind.io"
     vcsUrl = "https://github.com/plugind/builder-elasticsearch-gradle-plugin.git"
     licenses = ['Apache-2.0']
@@ -173,10 +189,46 @@ bintray {
   }
 }
 
+// Create the pom configuration:
+def pomConfig = {
+  licenses {
+    license {
+      name "Apache License, Version 2.0"
+      url "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      distribution "repo"
+    }
+  }
+  developers {
+    developer {
+      id "synhershko"
+      name "Itamar Syn-Hershko"
+      email "itamar@plugind.io"
+    }
+  }
+
+  scm {
+    url "https://github.com/plugind/builder-elasticsearch-gradle-plugin"
+    connection "scm:git:ssh://git@github.com/plugind/builder-elasticsearch-gradle-plugin.git"
+    developerConnection "scm:git:ssh://git@github.com/plugind/builder-elasticsearch-gradle-plugin.git"
+  }
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            groupId group
+            artifactId 'gradle-plugin'
+            version version
+            pom.withXml {
+              def root = asNode()
+              root.appendNode('description', description)
+              root.appendNode('name', "io.plugind.builders.elasticsearch.gradle-plugin")
+              root.appendNode('url', 'http://plugind.io')
+              root.children().last() + pomConfig
+            }
         }
     }
     repositories {
