@@ -18,7 +18,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'io.plugind.builders.elasticsearch:gradle-plugin:0.2.0'
+        classpath 'io.plugind.builders.elasticsearch:gradle-plugin:0.4.0'
     }
 }
 apply plugin: 'elasticsearch.esplugin'
@@ -32,8 +32,6 @@ esplugin {
     version rootProject.version
     description 'foo bar'
     classname 'fully.qualified.MainPluginClass'
-    licenseFile = rootProject.file('LICENSE')
-    noticeFile = rootProject.file('NOTICE')
 }
 ```
 
