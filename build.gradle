@@ -31,7 +31,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'maven'
 
 group = 'io.plugind.builders.elasticsearch'
-version = '0.3.0'
+version = '0.4.0'
 description = """Gradle plugin to help with building and publishing Elasticsearch plugins"""
 
 if (GradleVersion.current() < GradleVersion.version('3.3')) {
