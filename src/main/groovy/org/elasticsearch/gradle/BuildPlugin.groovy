@@ -528,8 +528,12 @@ class BuildPlugin implements Plugin<Project> {
             }
             // add license/notice files
             project.afterEvaluate {
+                // try to set defaults by convention
+                project.noticeFile = project.noticeFile ?: existingFileOrNull(project, 'NOTICE.txt') ?: existingFileOrNull(project, 'NOTICE')
+                project.licenseFile = project.licenseFile ?: existingFileOrNull(project, 'LICENSE.txt') ?: existingFileOrNull(project, 'LICENSE')
+
                 if (project.licenseFile == null || project.noticeFile == null) {
-                    throw new GradleException("Must specify license and notice file for project ${project.path}")
+                    throw new GradleException("Must specify license and notice file for project ${project.name} - none specified and none of the default paths exist")
                 }
                 jarTask.into('META-INF') {
                     from(project.licenseFile.parent) {
@@ -657,5 +661,10 @@ class BuildPlugin implements Plugin<Project> {
     private static configureDependenciesInfo(Project project) {
         Task deps = project.tasks.create("dependenciesInfo", DependenciesInfoTask.class)
         deps.dependencies = project.configurations.compile.allDependencies
+    }
+
+    private static File existingFileOrNull(Project project, String filename) {
+        final File f = project.rootProject.file(filename)
+        return f.exists() ? f : null
     }
 }
