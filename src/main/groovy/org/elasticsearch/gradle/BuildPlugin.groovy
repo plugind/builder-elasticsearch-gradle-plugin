@@ -663,7 +663,7 @@ class BuildPlugin implements Plugin<Project> {
         deps.dependencies = project.configurations.compile.allDependencies
     }
 
-    private static File existingFileOrNull(Project project, String filename) {
+    protected static File existingFileOrNull(Project project, String filename) {
         final File f = project.rootProject.file(filename)
         return f.exists() ? f : null
     }
