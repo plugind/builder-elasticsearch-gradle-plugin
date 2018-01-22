@@ -177,7 +177,7 @@ bintray {
 
   pkg {
     repo = "io.plugind.builders.elasticsearch"
-    name = "io.plugind.builders.elasticsearch.gradle-plugin"
+    name = "gradle-plugin"
     websiteUrl = "http://plugind.io"
     vcsUrl = "https://github.com/plugind/builder-elasticsearch-gradle-plugin.git"
     licenses = ['Apache-2.0']
